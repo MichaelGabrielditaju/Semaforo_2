@@ -11,6 +11,7 @@
 
 bool temporizador_ativo = false;
 int estado_led = 0;
+absolute_time_t ultimo_tempo_botao;
 
 bool turn_off_callback(struct repeating_timer *t) {
     if (estado_led == 0) {
@@ -29,13 +30,17 @@ bool turn_off_callback(struct repeating_timer *t) {
 }
 
 void botao_callback(uint gpio, uint32_t events) {
-    if (!temporizador_ativo) {
-        gpio_put(LED_AZUL, 1);
-        gpio_put(LED_VERMELHO, 1);
-        gpio_put(LED_VERDE, 1);
-        estado_led = 0;
-        temporizador_ativo = true;
-        add_alarm_in_ms(INTERVALO_ALARME_MS, turn_off_callback, NULL, false);
+    absolute_time_t agora = get_absolute_time();
+    if (absolute_time_diff_us(ultimo_tempo_botao, agora) > 300000) { // 300 ms debounce
+        if (!temporizador_ativo) {
+            gpio_put(LED_AZUL, 1);
+            gpio_put(LED_VERMELHO, 1);
+            gpio_put(LED_VERDE, 1);
+            estado_led = 0;
+            temporizador_ativo = true;
+            add_alarm_in_ms(INTERVALO_ALARME_MS, turn_off_callback, NULL, false);
+        }
+        ultimo_tempo_botao = agora;
     }
 }
 

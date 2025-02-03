@@ -1,4 +1,4 @@
 [wokwi]
 version = 1
-firmware = 'semaforo_2.hex'
-elf = 'semaforo_2.elf'
+firmware = 'build/semaforo_2.hex'
+elf = 'build/semaforo_2.elf'
